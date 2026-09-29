@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post Box with Character Counter</title>
+  <!-- React and ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel CDN to compile JSX in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .post-box-card {
+      background-color: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      resize: vertical;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: #007bff;
+    }
+
+    textarea.exceeded {
+      border-color: red;
+    }
+
+    .counter-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .counter-text {
+      color: #666;
+      font-weight: bold;
+    }
+
+    .counter-text.exceeded {
+      color: red;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .post-btn {
+      margin-top: 16px;
+      width: 100%;
+      padding: 10px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .post-btn:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    .post-btn:not(:disabled):hover {
+      background-color: #0056b3;
+    }
+
+    .success-msg {
+      margin-top: 12px;
+      color: green;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const MAX_LIMIT = 100;
+
+    function PostBox() {
+      // 1. Controlled textarea state
+      const [content, setContent] = React.useState('');
+      const [postedMsg, setPostedMsg] = React.useState('');
+
+      // Calculated state variables
+      const charCount = content.length;
+      const isExceeded = charCount > MAX_LIMIT;
+      const isEmpty = content.trim().length === 0;
+
+      // 4. Disable Post button when text is empty OR over limit
+      const isButtonDisabled = isEmpty || isExceeded;
+
+      const handlePost = () => {
+        setPostedMsg(`Post published successfully! ("${content}")`);
+        setContent(''); // Reset after post
+      };
+
+      return (
+        <div className="post-box-card">
+          <h2>Create a Post</h2>
+          
+          {/* 1. Controlled Textarea */}
+          <textarea
+            placeholder="What's on your mind? (Max 100 chars)"
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              setPostedMsg('');
+            }}
+            className={isExceeded ? 'exceeded' : ''}
+          />
+
+          {/* 2 & 3. Live Counter & Exceeded Message */}
+          <div className="counter-row">
+            <div>
+              {/* 3. Red "Limit exceeded" message when > 100 chars */}
+              {isExceeded && (
+                <span className="error-message">Limit exceeded</span>
+              )}
+            </div>
+            
+            {/* 2. Live character counter (e.g. 45 / 100) */}
+            <span className={`counter-text ${isExceeded ? 'exceeded' : ''}`}>
+              {charCount} / {MAX_LIMIT}
+            </span>
+          </div>
+
+          {/* 4. Disable "Post" button when text is empty or over the limit */}
+          <button
+            className="post-btn"
+            disabled={isButtonDisabled}
+            onClick={handlePost}
+          >
+            Post
+          </button>
+
+          {postedMsg && <div className="success-msg">{postedMsg}</div>}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<PostBox />);
+  </script>
+
+</body>
+</html>
